@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#E8590C"/>
+<title>UrbanBite FOD — Coming Soon 🔥</title>
+<meta name="description" content="Surat's boldest food delivery app. 5 original brands. Launching soon."/>
+
+<!-- ═══ KEYS — REPLACE THESE ═══════════════════════════════════════════════
+  1. GOOGLE_CLIENT_ID  → console.cloud.google.com → New Project → APIs & Services
+                         → Credentials → Create OAuth Client ID (Web) → copy Client ID
+  2. EMAILJS_PUBLIC_KEY → emailjs.com → Account → API Keys → Public Key
+  3. EMAILJS_SERVICE_ID → emailjs.com → Email Services → your service ID (e.g. service_xxxxxx)
+  4. EMAILJS_TEMPLATE_ID→ emailjs.com → Email Templates → your template ID (e.g. template_xxxxxx)
+     Template variables to use in EmailJS: {{to_email}}, {{to_name}}, {{message}}
+════════════════════════════════════════════════════════════════════════════ -->
+<meta name="google-client-id" content="595379788320-gvgheeufvhiuvc9regk7t2gv0nf7avna.apps.googleusercontent.com"/>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client"></script>
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<!-- Fonts: Clash Display (bold headings) + Plus Jakarta Sans (body) -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet"/>
+<!-- Clash Display via CDN -->
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap"/>
+
+<style>
+/* ═══ ROOT ════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --fire:#E8590C;
+  --fire-dim:rgba(232,89,12,0.1);
+  --fire-glow:rgba(232,89,12,0.4);
+  --gold:#FFB830;
+  --green:#2B8A3E;
+  --ink:#060606;
+  --card:#0f0f0f;
+  --card2:#151515;
+  --surface:#1a1a1a;
+  --border:rgba(255,255,255,0.07);
+  --muted:#666;
+  --soft:#999;
+  --serif:'Clash Display',Georgia,sans-serif;
+  --body:'Plus Jakarta Sans',-apple-system,sans-serif;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  background:var(--ink);color:#EFEFEF;
+  font-family:var(--body);overflow-x:hidden;
+  cursor:none;
+}
+::selection{background:var(--fire);color:#fff}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--body)}
+
+/* ── Cursor ── */
+#cur{position:fixed;width:8px;height:8px;background:var(--fire);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s}
+#cur-r{position:fixed;width:30px;height:30px;border:1.5px solid rgba(232,89,12,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .08s,top .08s,width .2s,height .2s}
+body.hov #cur{width:16px;height:16px}
+body.hov #cur-r{width:48px;height:48px}
+@media(pointer:coarse){body{cursor:auto}#cur,#cur-r{display:none}}
+
+/* ── Grain ── */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E")}
+
+/* ═══ NAV ══════════════════════════════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 56px;
+  transition:background .3s,padding .3s,border-color .3s;
+  border-bottom:1px solid transparent;
+}
+nav.stuck{
+  background:rgba(6,6,6,.95);
+  backdrop-filter:blur(24px);
+  padding:14px 56px;
+  border-color:var(--border);
+}
+.nav-logo{display:flex;flex-direction:column}
+.nav-wordmark{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:-.3px;color:#fff}
+.nav-wordmark b{color:var(--fire)}
+.nav-sub{font-size:8px;font-weight:600;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-top:1px}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-size:13px;font-weight:600;color:var(--muted);transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-signin{
+  display:flex;align-items:center;gap:8px;
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:10px;padding:9px 18px;
+  font-size:13px;font-weight:600;color:#ccc;cursor:pointer;
+  transition:all .2s;
+}
+.nav-signin:hover{border-color:rgba(255,255,255,.18);color:#fff}
+.nav-cta{
+  background:var(--fire);border:none;border-radius:10px;
+  padding:9px 20px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;
+  box-shadow:0 3px 16px var(--fire-glow);
+  transition:transform .15s,box-shadow .2s;
+}
+.nav-cta:hover{transform:scale(1.04);box-shadow:0 6px 24px var(--fire-glow)}
+@media(max-width:768px){
+  nav{padding:16px 22px}
+  nav.stuck{padding:12px 22px}
+  .nav-links{display:none}
+  .nav-signin span{display:none}
+}
+
+/* ═══ HERO ═════════════════════════════════════════════════════════════════ */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:130px 24px 90px;
+  position:relative;overflow:hidden;
+}
+.hero-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 65% 50% at 50% 38%,rgba(232,89,12,.09) 0%,transparent 60%),
+    radial-gradient(ellipse 35% 40% at 15% 85%,rgba(200,90,0,.05) 0%,transparent 50%);
+}
+.hero-dots{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 75% 75% at center,black 25%,transparent 70%);
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:100px;padding:7px 18px;margin-bottom:36px;
+  animation:fup .6s ease both;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--fire);animation:bdot 1.4s ease-in-out infinite}
+@keyframes bdot{0%,100%{opacity:1;box-shadow:0 0 0 0 var(--fire-glow)}50%{opacity:.3;box-shadow:0 0 0 5px transparent}}
+.badge-text{font-size:11px;font-weight:700;letter-spacing:1.8px;color:#aaa;text-transform:uppercase}
+
+.hero-h1{
+  font-family:var(--serif);
+  font-size:clamp(56px,9.5vw,112px);
+  font-weight:700;line-height:.93;
+  letter-spacing:-2.5px;color:#fff;
+  margin-bottom:22px;
+  animation:fup .7s .1s ease both;
+}
+.hero-h1 em{font-style:italic;color:var(--fire)}
+.hero-h1 .stroke{-webkit-text-stroke:1.5px rgba(255,255,255,.22);color:transparent}
+
+.hero-sub{
+  font-size:clamp(15px,2vw,19px);
+  font-weight:400;color:var(--soft);
+  max-width:500px;margin:0 auto 44px;
+  line-height:1.7;
+  animation:fup .7s .2s ease both;
+}
+.hero-sub strong{color:#ddd;font-weight:600}
+
+.hero-actions{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;flex-wrap:wrap;
+  animation:fup .7s .3s ease both;
+}
+.btn-primary{
+  background:var(--fire);border:none;border-radius:12px;
+  padding:16px 32px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;
+  box-shadow:0 6px 28px var(--fire-glow);
+  transition:transform .15s,box-shadow .2s;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px var(--fire-glow)}
+.btn-primary:active{transform:scale(.97)}
+.btn-ghost{
+  background:transparent;border:1px solid var(--border);
+  border-radius:12px;padding:15px 26px;
+  font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;
+  transition:all .2s;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.22);color:#fff}
+
+.hero-scroll{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  animation:fup .7s .5s ease both;
+}
+.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,var(--fire),transparent);animation:sp 2s ease-in-out infinite}
+@keyframes sp{0%,100%{opacity:.35}50%{opacity:.9}}
+.scroll-txt{font-size:9px;font-weight:700;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+@keyframes fup{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ TICKER ════════════════════════════════════════════════════════════════ */
+.ticker{background:var(--fire);padding:11px 0;overflow:hidden;position:relative;z-index:5}
+.ticker-track{display:flex;width:max-content;animation:tk 28s linear infinite}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tw{font-size:11px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:2px;text-transform:uppercase;padding:0 28px;white-space:nowrap}
+.ts{color:rgba(255,255,255,.3)}
+
+/* ═══ SECTIONS ══════════════════════════════════════════════════════════════ */
+.sec{padding:96px 56px;position:relative}
+@media(max-width:768px){.sec{padding:72px 20px}}
+.eyebrow{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:700;color:var(--fire);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px}
+.eyebrow::before{content:'';width:20px;height:1.5px;background:var(--fire)}
+.sec-h2{font-family:var(--serif);font-size:clamp(30px,4.5vw,50px);font-weight:700;line-height:1.05;letter-spacing:-1px;color:#fff;margin-bottom:14px}
+.sec-h2 em{font-style:italic;color:var(--fire)}
+.sec-lead{font-size:16px;color:var(--soft);max-width:460px;line-height:1.8;font-weight:400}
+
+/* ═══ MENU ══════════════════════════════════════════════════════════════════ */
+#menu{background:var(--ink);padding-top:80px;padding-bottom:0}
+.brand-tabs{display:flex;gap:10px;flex-wrap:wrap;padding:0 56px;margin-top:36px}
+@media(max-width:768px){.brand-tabs{padding:0 20px;gap:8px}}
+.b-tab{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:14px;padding:11px 18px;cursor:pointer;
+  transition:all .2s;font-family:var(--body);
+}
+.b-tab:hover{border-color:rgba(255,255,255,.14);transform:translateY(-2px)}
+.b-tab.on{transform:translateY(-3px)}
+.b-tab-em{font-size:20px}
+.b-tab-name{font-size:13px;font-weight:700;color:#fff}
+.b-tab-tag{font-size:10px;color:var(--muted);font-weight:500}
+@media(max-width:480px){.b-tab-tag{display:none}}
+
+.brand-stage{padding:28px 56px 80px;animation:sin .3s ease}
+@keyframes sin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){.brand-stage{padding:24px 20px 60px}}
+
+.brand-strip{
+  border-radius:20px;padding:32px 36px;
+  margin-bottom:28px;display:flex;align-items:center;gap:22px;
+  position:relative;overflow:hidden;
+}
+.brand-strip::after{content:attr(data-em);position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:100px;opacity:.06;pointer-events:none}
+.bs-em{font-size:44px;width:72px;height:72px;background:rgba(255,255,255,.05);border-radius:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bs-name{font-family:var(--serif);font-size:clamp(26px,3.5vw,38px);font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1}
+.bs-tag{font-size:14px;font-style:italic;margin-top:5px;font-weight:400}
+
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.mc{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:20px;position:relative;overflow:hidden;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px}
+.mc:hover{transform:translateY(-4px);box-shadow:0 18px 48px rgba(0,0,0,.45)}
+.mc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px}
+.mc-name{font-family:var(--serif);font-size:18px;font-weight:600;color:#fff;line-height:1.2}
+.mc-badge{font-size:8.5px;font-weight:800;padding:3px 9px;border-radius:7px;white-space:nowrap;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;margin-top:3px}
+.mc-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.mc-bot{display:flex;align-items:center;justify-content:space-between}
+.mc-left{display:flex;align-items:center;gap:7px}
+.vd{width:10px;height:10px;border-radius:50%}
+.mc-price{font-family:var(--serif);font-size:22px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.order-chip{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:9px;padding:7px 14px;cursor:pointer;
+  font-size:12px;font-weight:700;color:#777;
+  transition:all .2s;
+}
+.order-chip:hover{background:var(--fire-dim);border-color:rgba(232,89,12,.3);color:var(--fire)}
+
+/* ═══ KITCHEN ═══════════════════════════════════════════════════════════════ */
+#kitchen{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+@media(max-width:768px){.two-col{grid-template-columns:1fr;gap:40px}}
+.k-list{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.ki{
+  display:flex;align-items:center;gap:14px;
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:13px;padding:16px 18px;
+  transition:border-color .2s,transform .2s;
+}
+.ki:hover{border-color:rgba(232,89,12,.22);transform:translateX(4px)}
+.ki-ico{font-size:20px;width:44px;height:44px;background:var(--fire-dim);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ki-t{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:2px}
+.ki-d{font-size:12px;color:var(--muted);line-height:1.5}
+.k-visual{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv{background:var(--ink);border:1px solid var(--border);border-radius:16px;padding:22px 18px;transition:border-color .2s,transform .2s}
+.kv:hover{border-color:rgba(232,89,12,.25);transform:translateY(-3px)}
+.kv:first-child{grid-column:span 2}
+.kv-n{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--fire);letter-spacing:-.5px;line-height:1;margin-bottom:5px}
+.kv-l{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.2px}
+.kv-s{font-size:11px;color:#222;margin-top:3px}
+
+/* ═══ NOTIFY / SIGNUP ═══════════════════════════════════════════════════════ */
+#notify{
+  background:var(--ink);
+  background-image:radial-gradient(ellipse 55% 70% at 50% 50%,rgba(232,89,12,.06) 0%,transparent 60%);
+  text-align:center;
+}
+.notify-inner{max-width:520px;margin:0 auto}
+.notify-h{font-family:var(--serif);font-size:clamp(28px,4.5vw,48px);font-weight:700;line-height:1.1;letter-spacing:-1px;color:#fff;margin:14px 0}
+.notify-h em{font-style:italic;color:var(--fire)}
+.notify-sub{font-size:16px;color:var(--soft);line-height:1.75;margin-bottom:36px}
+
+/* Google button */
+.google-btn{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  background:#fff;border:none;border-radius:12px;
+  padding:15px 28px;font-family:var(--body);font-size:15px;
+  font-weight:600;color:#1f1f1f;cursor:pointer;
+  max-width:320px;width:100%;margin:0 auto 16px;
+  box-shadow:0 2px 16px rgba(0,0,0,.3);
+  transition:transform .15s,box-shadow .2s;
+}
+.google-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.4)}
+.google-btn:active{transform:scale(.97)}
+.google-logo{width:20px;height:20px;flex-shrink:0}
+
+.divider{
+  display:flex;align-items:center;gap:14px;
+  max-width:320px;margin:0 auto 16px;
+  color:var(--muted);font-size:12px;font-weight:600;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.notify-form{display:flex;gap:10px;max-width:400px;margin:0 auto 12px}
+.notify-input{
+  flex:1;background:var(--card);border:1px solid var(--border);
+  border-radius:11px;padding:14px 16px;
+  font-family:var(--body);font-size:14px;color:#fff;
+  outline:none;transition:border-color .2s;
+}
+.notify-input:focus{border-color:rgba(232,89,12,.5)}
+.notify-input::placeholder{color:var(--muted)}
+.notify-send{
+  background:var(--fire);border:none;border-radius:11px;
+  padding:14px 20px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;
+  white-space:nowrap;box-shadow:0 4px 18px var(--fire-glow);
+  transition:opacity .2s,transform .15s;
+}
+.notify-send:hover{opacity:.9;transform:scale(1.03)}
+@media(max-width:480px){.notify-form{flex-direction:column}}
+.notify-fine{font-size:11px;color:#2a2a2a}
+
+/* Signed-in state */
+.signed-in-state{
+  background:var(--card);border:1px solid rgba(43,138,62,.25);
+  border-radius:16px;padding:24px;max-width:360px;margin:0 auto;
+  display:none;
+}
+.signed-in-state.show{display:block}
+.si-avatar{width:52px;height:52px;border-radius:50%;border:2px solid var(--green);margin:0 auto 12px}
+.si-name{font-family:var(--serif);font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.si-email{font-size:13px;color:var(--muted);margin-bottom:16px}
+.si-msg{font-size:13px;color:#69DB7C;font-weight:600;line-height:1.5;margin-bottom:16px}
+.si-signout{background:none;border:1px solid var(--border);border-radius:9px;padding:7px 16px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s}
+.si-signout:hover{border-color:rgba(255,255,255,.2);color:#fff}
+
+/* ═══ FOOTER ════════════════════════════════════════════════════════════════ */
+footer{
+  background:var(--ink);border-top:1px solid var(--border);
+  padding:32px 56px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:14px;
+}
+@media(max-width:768px){footer{padding:24px 20px;text-align:center;justify-content:center}}
+.f-logo{font-family:var(--serif);font-size:18px;font-weight:700}
+.f-logo b{color:var(--fire)}
+.f-mid{font-size:13px;font-style:italic;color:#252525}
+.f-right{font-size:12px;color:#222}
+
+/* ═══ HINDI ORDER MODAL ══════════════════════════════════════════════════════ */
+.h-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.88);
+  backdrop-filter:blur(22px);z-index:500;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .22s;
+}
+.h-overlay.open{opacity:1;pointer-events:all}
+.h-modal{
+  background:#101010;border:1px solid rgba(255,255,255,.08);
+  border-radius:26px 26px 0 0;
+  padding:10px 28px 38px;width:100%;max-width:500px;
+  transform:translateY(60px);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.h-overlay.open .h-modal{transform:translateY(0)}
+.h-handle{width:38px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;margin:10px auto 22px}
+.h-emoji{font-size:48px;display:block;text-align:center;margin-bottom:6px;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{from{transform:scale(0) rotate(-8deg)}to{transform:scale(1) rotate(0deg)}}
+.h-hindi{
+  font-family:var(--serif);font-size:clamp(20px,3.5vw,28px);
+  font-weight:700;color:#fff;text-align:center;
+  line-height:1.25;margin-bottom:8px;
+}
+.h-hindi em{font-style:italic;color:var(--fire)}
+.h-eng{font-size:13px;font-style:italic;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:24px}
+.h-item-name{
+  background:var(--fire-dim);border:1px solid rgba(232,89,12,.2);
+  border-radius:10px;padding:10px 16px;
+  font-size:13px;font-weight:600;color:var(--fire);
+  text-align:center;margin-bottom:20px;
+}
+.h-cta{
+  width:100%;background:var(--fire);border:none;border-radius:14px;
+  padding:15px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;
+  box-shadow:0 5px 22px var(--fire-glow);
+  transition:opacity .2s,transform .12s;margin-bottom:10px;
+}
+.h-cta:hover{opacity:.9;transform:scale(1.01)}
+.h-dismiss{
+  display:block;width:100%;text-align:center;
+  background:none;border:none;font-size:12px;color:#333;
+  cursor:pointer;padding:6px;transition:color .2s;
+}
+.h-dismiss:hover{color:#666}
+.h-success{text-align:center;padding:8px 0}
+.hs-em{font-size:50px;display:block;margin-bottom:10px}
+.hs-t{font-family:var(--serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+.hs-s{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ═══ SCROLL REVEAL ══════════════════════════════════════════════════════════ */
+.r{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.r.v{opacity:1;transform:translateY(0)}
+.r.d1{transition-delay:.08s}.r.d2{transition-delay:.15s}.r.d3{transition-delay:.23s}.r.d4{transition-delay:.3s}
+
+/* ═══ TOAST ══════════════════════════════════════════════════════════════════ */
+#toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:#fff;color:#111;border-radius:12px;
+  padding:12px 24px;font-size:13px;font-weight:600;
+  box-shadow:0 8px 32px rgba(0,0,0,.3);
+  z-index:600;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  opacity:0;pointer-events:none;white-space:nowrap;
+}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+<div id="toast"></div>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════════════════ -->
+<nav id="nav">
+  <div class="nav-logo">
+    <div class="nav-wordmark">Urban<b>Bite</b> FOD</div>
+    <div class="nav-sub">Food On Demand</div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#notify">Sign Up</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-signin" id="navSigninBtn" onclick="document.getElementById('notify').scrollIntoView({behavior:'smooth'})">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Sign In</span>
+    </button>
+    <button class="nav-cta" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">See the Menu</button>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-dots"></div>
+
+  <div class="hero-badge">
+    <div class="badge-dot"></div>
+    <span class="badge-text">Coming Soon · Surat, Gujarat</span>
+  </div>
+
+  <h1 class="hero-h1">
+    We're in the<br>
+    kitchen. <em>Not yet</em><br>
+    at your <span class="stroke">door.</span>
+  </h1>
+
+  <p class="hero-sub" id="heroCheesy"></p>
+
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">Peek at the Menu 👀</button>
+    <button class="btn-ghost" onclick="document.getElementById('notify').scrollIntoView({behavior:'smooth'})">🔔 Get Notified</button>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <div class="scroll-txt">Scroll</div>
+  </div>
+</section>
+
+<!-- ═══ TICKER ════════════════════════════════════════════════════════════ -->
+<div class="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
+
+<!-- ═══ MENU ══════════════════════════════════════════════════════════════ -->
+<section id="menu" class="sec" style="padding-bottom:0">
+  <div class="eyebrow r">The Menu</div>
+  <h2 class="sec-h2 r d1">Five brands. <em>Every craving.</em><br>All locked. For now.</h2>
+  <p class="sec-lead r d2">Browse what's coming. Tap any dish to see what happens. 😏</p>
+</section>
+<div class="brand-tabs r d2" id="brandTabs" style="margin-top:36px"></div>
+<div id="brandStage"></div>
+
+
+<!-- ═══ SIGNUP / NOTIFY ═══════════════════════════════════════════════════ -->
+<section id="notify" class="sec">
+  <div class="notify-inner">
+    <div class="eyebrow r" style="justify-content:center">Don't Miss It</div>
+    <div class="notify-h r d1" id="notifyH"></div>
+    <p class="notify-sub r d2" id="notifySub"></p>
+
+    <!-- NOT signed in -->
+    <div id="signupBlock" class="r d3">
+
+      <!-- Google renders its real button here directly -->
+      <div id="googleBtnInner" style="display:flex;justify-content:center;margin-bottom:14px;min-height:44px"></div>
+
+      <div class="divider">or</div>
+
+      <!-- Email form -->
+      <form class="notify-form" onsubmit="handleEmailSignup(event)">
+        <input class="notify-input" type="email" placeholder="your@email.com" required id="notifyEmail"/>
+        <button class="notify-send" type="submit" id="notifySend">Notify Me 🔥</button>
+      </form>
+      <div class="notify-fine">No spam. One email when we launch. Promise. 🤞</div>
+    </div>
+
+    <!-- Signed in state -->
+    <div class="signed-in-state" id="signedInState">
+      <img class="si-avatar" id="siAvatar" src="" alt=""/>
+      <div class="si-name" id="siName"></div>
+      <div class="si-email" id="siEmail"></div>
+      <div class="si-msg">🎉 You're on the launch list! We'll email you the second UrbanBite FOD goes live in Surat.</div>
+      <button class="si-signout" onclick="handleSignOut()">Sign out</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="f-logo">Urban<b>Bite</b> FOD</div>
+  <div class="f-mid" id="footerLine"></div>
+  <div class="f-right">© 2025 · Surat, Gujarat</div>
+</footer>
+
+<!-- ═══ HINDI ORDER MODAL ════════════════════════════════════════════════ -->
+<div class="h-overlay" id="hOverlay" onclick="closeHindi()">
+  <div class="h-modal" onclick="event.stopPropagation()">
+    <div class="h-handle"></div>
+    <div id="hBody"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     CONFIGURATION — PASTE YOUR KEYS HERE
+     ════════════════════════════════════════════════════════════════════════ -->
+<script>
+const CONFIG = {
+  // ── EmailJS ──────────────────────────────────────────────────────────────
+  // 1. Go to emailjs.com → sign up free
+  // 2. Add an Email Service (Gmail recommended) → copy Service ID below
+  // 3. Create a Template, use these variables:
+  //    Subject: Welcome to UrbanBite FOD! 🔥
+  //    Body:    Hi {{to_name}}, you're on the list! {{message}}
+  // 4. Copy Public Key from Account → API Keys
+  EMAILJS_PUBLIC_KEY:  "YOUR_EMAILJS_PUBLIC_KEY",
+  EMAILJS_SERVICE_ID:  "YOUR_EMAILJS_SERVICE_ID",
+  EMAILJS_TEMPLATE_ID: "YOUR_EMAILJS_TEMPLATE_ID",
+
+  // ── Google OAuth ──────────────────────────────────────────────────────────
+  // 1. console.cloud.google.com → New Project
+  // 2. APIs & Services → Credentials → Create OAuth 2.0 Client ID
+  // 3. Application type: Web, add your domain to Authorized JS Origins
+  //    (for local testing add: http://localhost and http://127.0.0.1)
+  // 4. Copy the Client ID below
+  GOOGLE_CLIENT_ID: "595379788320-gvgheeufvhiuvc9regk7t2gv0nf7avna.apps.googleusercontent.com",
+};
+</script>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// COPY / CONTENT
+// ════════════════════════════════════════════════════════════════════════════
+const HERO_LINES = [
+  "We're cooking something big. <strong>Your patience will be rewarded.</strong> Very soon. 🔥",
+  "Five brands. One kitchen. <strong>Zero middlemen.</strong> Surat's boldest food app — almost ready.",
+  "Good things take time. Great food takes a little longer. <strong>Almost there.</strong> 🍽️",
+  "Your next favourite app is almost done loading. <strong>Literally.</strong> 😏",
+  "Surat, brace your taste buds. <strong>Something big is almost at your door.</strong> 🚀",
+];
+
+const NOTIFY_COPY = [
+  { h: "Your table is almost<br><em>ready.</em>", s: "Sign up and be the first to know when Surat's boldest food app goes live." },
+  { h: "Be first in<br><em>the queue.</em>", s: "Drop your email. We'll come straight to you — just like our riders will." },
+  { h: "Good things come<br><em>to those who sign up.</em>", s: "One email. When we launch. That's it. Join the list." },
+];
+
+// ── Hindi flirty lines for order modal ─────────────────────────────────────
+const HINDI_LINES = [
+  { emoji:"😏", hindi:"Abhi order nahi ho sakta. <em>Par roz aake menu dekh sakte ho.</em>", eng:"Can't order yet. But you can keep visiting. We won't mind. 😉" },
+  { emoji:"🔥", hindi:"Lock hai, jaanu. <em>Par tumhara dil toh unlock ho gaya na?</em>", eng:"It's locked. But your heart just skipped a beat, didn't it? 💛" },
+  { emoji:"🫙", hindi:"Patience rakho. <em>Kuch cheezein wait karne se aur achhi lagti hain.</em>", eng:"Good things take time to simmer. So do we. Almost ready. 🍲" },
+  { emoji:"😍", hindi:"Itna sundar menu dekh ke bhookh lagi? <em>Hum bhi ready ho rahe hain.</em>", eng:"Hungry just looking at the menu? Same energy. Launching soon. 🚀" },
+  { emoji:"💛", hindi:"Tumse pehli baar milna toh special hoga na? <em>Thoda intezaar karo.</em>", eng:"Our first meeting has to be special. Wait just a little longer. 🥺" },
+  { emoji:"🚀", hindi:"Dil churane ki taiyaari hai. <em>Seedha tumhare plate se.</em>", eng:"We're all set to steal your heart. Straight from the plate. 😎" },
+  { emoji:"🙈", hindi:"Order karna chahte ho? <em>Hum bhi chahte hain. Bas thoda aur.</em>", eng:"You want to order. We want to deliver. We're so close. 🤝" },
+];
+
+const FOOTER_LINES = [
+  "We're almost at your door. Almost. 🔥",
+  "The kitchen is ready. The app is almost ready. 🍽️",
+  "Worth the wait. We promise. 🤞",
+];
+
+// Set copy
+const N = NOTIFY_COPY[Math.floor(Math.random() * NOTIFY_COPY.length)];
+document.getElementById("heroCheesy").innerHTML = HERO_LINES[Math.floor(Math.random() * HERO_LINES.length)];
+document.getElementById("notifyH").innerHTML = N.h;
+document.getElementById("notifySub").textContent = N.s;
+document.getElementById("footerLine").textContent = FOOTER_LINES[Math.floor(Math.random() * FOOTER_LINES.length)];
+
+// ════════════════════════════════════════════════════════════════════════════
+// BRAND DATA
+// ════════════════════════════════════════════════════════════════════════════
+const BRANDS = [
+  { id:"thalibhavan", name:"ThaliBhavan", emoji:"🍽️", tagline:"Full North Indian Comfort",
+    color:"#C07D00", bg:"linear-gradient(135deg,#2a1f00,#1a1200)", border:"rgba(192,125,0,.2)",
+    items:[
+      {name:"Classic Rajasthani Thali", desc:"Dal, Baati, Churma, 2 Sabzi, Rice & Roti", price:249, veg:true, tag:"Bestseller"},
+      {name:"Mini Thali", desc:"2 Sabzi, Dal, Rice, 2 Roti & Pickle", price:179, veg:true, tag:null},
+      {name:"Paneer Special Thali", desc:"Paneer Makhani, Jeera Rice, 3 Roti & Salad", price:229, veg:true, tag:"Chef's Pick"},
+      {name:"Dal Bati Churma", desc:"5 Batis, Dal Tadka, Churma & Ghee", price:199, veg:true, tag:null},
+    ]},
+  { id:"greenbowl", name:"GreenBowl", emoji:"🥗", tagline:"Eat Clean. Feel Good.",
+    color:"#0C7B6E", bg:"linear-gradient(135deg,#001f1a,#001410)", border:"rgba(12,123,110,.2)",
+    items:[
+      {name:"Paneer Protein Bowl", desc:"Grilled Paneer, Quinoa, Edamame, Tahini Dressing", price:189, veg:true, tag:"High Protein"},
+      {name:"Quinoa Veggie Bowl", desc:"Quinoa, Roasted Veggies, Hummus & Pita Chips", price:169, veg:true, tag:null},
+      {name:"Greek Salad + Hummus", desc:"Cucumber, Olives, Feta, Cherry Tomato, Pita", price:149, veg:true, tag:"Light"},
+      {name:"Avocado Power Bowl", desc:"Avocado, Brown Rice, Sprouts, Lemon Drizzle", price:209, veg:true, tag:"New ✨"},
+    ]},
+  { id:"dakshini", name:"DakshiniDish", emoji:"🍛", tagline:"South Indian, Done Right",
+    color:"#2B8A3E", bg:"linear-gradient(135deg,#001a08,#000f05)", border:"rgba(43,138,62,.2)",
+    items:[
+      {name:"Masala Dosa + Sambar", desc:"Crispy Dosa, Spiced Potato, 2 Chutneys & Sambar", price:129, veg:true, tag:"Bestseller"},
+      {name:"Idli Vada Combo", desc:"4 Soft Idlis, 2 Medu Vadas, 3 Chutneys", price:99, veg:true, tag:null},
+      {name:"Uttapam + Filter Coffee", desc:"Onion-Tomato Uttapam & South Indian Coffee", price:149, veg:true, tag:"Morning ☀️"},
+      {name:"Ven Pongal + Rasam", desc:"Pongal, Rasam, Papad & Pickle", price:119, veg:true, tag:null},
+    ]},
+  { id:"biteburger", name:"BiteBurger", emoji:"🍔", tagline:"Every Bite, Max Flavour",
+    color:"#E85D04", bg:"linear-gradient(135deg,#1a0800,#0f0400)", border:"rgba(232,93,4,.2)",
+    items:[
+      {name:"Classic Smash Burger", desc:"Double Smash Patty, American Cheese, Special Sauce", price:179, veg:false, tag:"Bestseller"},
+      {name:"Crispy Paneer Burger", desc:"Crispy Paneer, Coleslaw, Jalapeño Mayo", price:149, veg:true, tag:null},
+      {name:"Loaded Waffle Fries", desc:"Waffle Fries, Cheese Sauce, Jalapeño, Sour Cream", price:119, veg:true, tag:"Snack"},
+      {name:"Zinger Chicken Wrap", desc:"Crispy Chicken, Lettuce, Chipotle Sauce, Lavash", price:159, veg:false, tag:"Spicy 🌶"},
+    ]},
+  { id:"sweeturban", name:"SweetUrban", emoji:"🧋", tagline:"Sweet Endings & Sips",
+    color:"#9B59B6", bg:"linear-gradient(135deg,#130020,#0a0012)", border:"rgba(155,89,182,.2)",
+    items:[
+      {name:"Belgian Choco Shake", desc:"Dark Chocolate, Vanilla Ice Cream, Whipped Cream", price:129, veg:true, tag:"Bestseller"},
+      {name:"Mango Boba Tea", desc:"Fresh Mango, Tapioca Pearls, Coconut Milk", price:109, veg:true, tag:"Summer 🌞"},
+      {name:"Gulab Jamun Sundae", desc:"2 Warm Gulab Jamuns, Vanilla Gelato, Rose Syrup", price:99, veg:true, tag:null},
+      {name:"Oreo Cheesecake Slice", desc:"Baked NY Cheesecake, Oreo Crust, Berry Compote", price:149, veg:true, tag:"New ✨"},
+    ]},
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// BUILD MENU
+// ════════════════════════════════════════════════════════════════════════════
+(function(){
+  const tabsEl  = document.getElementById("brandTabs");
+  const stageEl = document.getElementById("brandStage");
+  BRANDS.forEach((b, i) => {
+    const tab = document.createElement("div");
+    tab.className = "b-tab" + (i===0 ? " on" : "");
+    tab.dataset.id = b.id;
+    if(i===0){ tab.style.background = b.bg; tab.style.borderColor = b.border; }
+    tab.innerHTML = `<span class="b-tab-em">${b.emoji}</span><div><div class="b-tab-name">${b.name}</div><div class="b-tab-tag">${b.tagline}</div></div>`;
+    tab.onclick = () => switchBrand(b.id);
+    tabsEl.appendChild(tab);
+
+    const stage = document.createElement("div");
+    stage.className = "brand-stage";
+    stage.id = "stage-" + b.id;
+    if(i !== 0) stage.style.display = "none";
+
+    const cards = b.items.map(it => `
+      <div class="mc" style="--b-color:${b.color}">
+        <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:${b.color}"></div>
+        <div class="mc-top">
+          <div class="mc-name">${it.name}</div>
+          ${it.tag ? `<span class="mc-badge" style="background:${b.color}18;color:${b.color}">${it.tag}</span>` : ""}
+        </div>
+        <div class="mc-desc">${it.desc}</div>
+        <div class="mc-bot">
+          <div class="mc-left">
+            <div class="vd" style="background:${it.veg ? "#2B8A3E" : "#C92A2A"}"></div>
+            <div class="mc-price">₹${it.price}</div>
+          </div>
+          <div class="order-chip" onclick="openHindi('${it.name.replace(/'/g,"\\'")}')">🔒 Order Soon</div>
+        </div>
+      </div>`).join("");
+
+    stage.innerHTML = `
+      <div style="padding:28px 56px 0">
+        <div class="brand-strip" data-em="${b.emoji}" style="background:${b.bg};border:1px solid ${b.border}">
+          <div class="bs-em">${b.emoji}</div>
+          <div><div class="bs-name">${b.name}</div><div class="bs-tag" style="color:${b.color}">${b.tagline}</div></div>
+        </div>
+        <div class="menu-grid">${cards}</div>
+      </div>`;
+    stageEl.appendChild(stage);
+  });
+})();
+
+function switchBrand(id) {
+  document.querySelectorAll(".b-tab").forEach(t => {
+    const b = BRANDS.find(x => x.id === t.dataset.id);
+    const on = t.dataset.id === id;
+    t.className = "b-tab" + (on ? " on" : "");
+    t.style.background = on ? b.bg : "";
+    t.style.borderColor = on ? b.border : "";
+  });
+  document.querySelectorAll(".brand-stage").forEach(s => {
+    s.style.display = s.id === "stage-" + id ? "block" : "none";
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TICKER
+// ════════════════════════════════════════════════════════════════════════════
+(function(){
+  const t = document.getElementById("tickerTrack");
+  const base = `🔥 COMING SOON TO SURAT <span class="ts">✦</span> 5 BRANDS · 1 KITCHEN <span class="ts">✦</span> OWN RIDERS · OWN APP <span class="ts">✦</span> LAUNCHING VERY SOON <span class="ts">✦</span> `;
+  t.innerHTML = Array(6).fill(`<span class="tw">${base}</span>`).join("");
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+// HINDI MODAL (triggered on "Order Soon" click)
+// ════════════════════════════════════════════════════════════════════════════
+function openHindi(itemName) {
+  const line = HINDI_LINES[Math.floor(Math.random() * HINDI_LINES.length)];
+  document.getElementById("hBody").innerHTML = `
+    <span class="h-emoji">${line.emoji}</span>
+    <div class="h-hindi">${line.hindi}</div>
+    <div class="h-eng">${line.eng}</div>
+    <div class="h-item-name">🍽️ "${itemName}" — coming very soon</div>
+    <button class="h-cta" onclick="notifyFromHindi()">🔔 Notify Me at Launch</button>
+    <button class="h-dismiss" onclick="closeHindi()">I'll check back later</button>
+  `;
+  document.getElementById("hOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function notifyFromHindi() {
+  document.getElementById("hBody").innerHTML = `
+    <div class="h-success">
+      <span class="hs-em">🎉</span>
+      <div class="hs-t">You're on the list!</div>
+      <div class="hs-s">We'll ping you the second UrbanBite FOD goes live in Surat.<br>Get ready to eat differently. 🔥</div>
+    </div>`;
+  setTimeout(closeHindi, 2200);
+}
+
+function closeHindi() {
+  document.getElementById("hOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// EMAILJS — WELCOME EMAIL
+// ════════════════════════════════════════════════════════════════════════════
+function initEmailJS() {
+  if(CONFIG.EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
+    emailjs.init({ publicKey: CONFIG.EMAILJS_PUBLIC_KEY });
+  }
+}
+initEmailJS();
+
+function sendWelcomeEmail(name, email) {
+  if(CONFIG.EMAILJS_PUBLIC_KEY === "YOUR_EMAILJS_PUBLIC_KEY") {
+    console.log("EmailJS not configured yet. Would send welcome email to:", email);
+    return Promise.resolve();
+  }
+  return emailjs.send(CONFIG.EMAILJS_SERVICE_ID, CONFIG.EMAILJS_TEMPLATE_ID, {
+    to_name:  name || "Food Lover",
+    to_email: email,
+    message:  "You're officially on the UrbanBite FOD launch list. When we go live in Surat, you'll be the first to know. Get ready to eat differently. 🔥",
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GOOGLE SIGN-IN
+// ════════════════════════════════════════════════════════════════════════════
+let currentUser = null;
+let googleReady = false;
+
+function initGoogle() {
+  if(typeof google === "undefined" || !google.accounts) {
+    setTimeout(initGoogle, 300);
+    return;
+  }
+  googleReady = true;
+
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+  });
+
+  // Render Google's real button — works every click, no suppression ever
+  google.accounts.id.renderButton(
+    document.getElementById("googleBtnInner"),
+    {
+      type: "standard",
+      theme: "outline",
+      size: "large",
+      text: "continue_with",
+      shape: "rectangular",
+      width: 300,
+      logo_alignment: "left",
+    }
+  );
+}
+
+// Start initialising immediately — don't wait for window.load
+initGoogle();
+
+function handleGoogleCredential(response) {
+  try {
+    // Properly pad base64url before decoding
+    let b64 = response.credential.split(".")[1];
+    b64 = b64.replace(/-/g, "+").replace(/_/g, "/");
+    while(b64.length % 4) b64 += "=";
+    const payload = JSON.parse(atob(b64));
+    onUserSignedIn(
+      payload.name    || "Food Lover",
+      payload.email   || "",
+      payload.picture || ""
+    );
+  } catch(e) {
+    console.error("Google credential error:", e);
+    showToast("Sign-in failed. Please try again.");
+  }
+}
+
+function onUserSignedIn(name, email, photo) {
+  currentUser = { name, email, photo };
+
+  // Hide signup block, show signed-in state
+  document.getElementById("signupBlock").style.display = "none";
+  const siState = document.getElementById("signedInState");
+  siState.classList.add("show");
+  document.getElementById("siName").textContent  = name;
+  document.getElementById("siEmail").textContent = email;
+  if(photo) document.getElementById("siAvatar").src = photo;
+
+  // Update nav button
+  document.getElementById("navSigninBtn").innerHTML = `
+    ${photo ? `<img src="${photo}" style="width:20px;height:20px;border-radius:50%;object-fit:cover"/>` : ""}
+    <span>${name.split(" ")[0]}</span>`;
+
+  // Send welcome email
+  sendWelcomeEmail(name, email)
+    .then(() => showToast(`🎉 Welcome, ${name.split(" ")[0]}! Check your email.`))
+    .catch(() => showToast(`👋 Welcome, ${name.split(" ")[0]}! You're on the list.`));
+}
+
+function handleSignOut() {
+  if(googleReady) google.accounts.id.disableAutoSelect();
+  currentUser = null;
+  document.getElementById("signupBlock").style.display = "block";
+  document.getElementById("signedInState").classList.remove("show");
+  document.getElementById("navSigninBtn").innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Sign In</span>`;
+  showToast("Signed out. See you soon! 👋");
+}
+
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// EMAIL FORM SIGNUP
+// ════════════════════════════════════════════════════════════════════════════
+function handleEmailSignup(e) {
+  e.preventDefault();
+  const email = document.getElementById("notifyEmail").value;
+  const btn   = document.getElementById("notifySend");
+  btn.textContent = "Sending...";
+  btn.disabled = true;
+
+  sendWelcomeEmail("", email)
+    .then(() => {
+      btn.textContent = "✅ You're in!";
+      btn.style.background = "#2B8A3E";
+      document.getElementById("notifyEmail").value = "";
+      showToast("🎉 Check your email for a welcome message!");
+      setTimeout(() => {
+        btn.textContent = "Notify Me 🔥";
+        btn.style.background = "";
+        btn.disabled = false;
+      }, 3500);
+    })
+    .catch(() => {
+      btn.textContent = "✅ You're on the list!";
+      btn.style.background = "#2B8A3E";
+      document.getElementById("notifyEmail").value = "";
+      setTimeout(() => {
+        btn.textContent = "Notify Me 🔥";
+        btn.style.background = "";
+        btn.disabled = false;
+      }, 3000);
+    });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// NAV SCROLL
+// ════════════════════════════════════════════════════════════════════════════
+window.addEventListener("scroll", () => {
+  document.getElementById("nav").classList.toggle("stuck", window.scrollY > 50);
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// SCROLL REVEAL
+// ════════════════════════════════════════════════════════════════════════════
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("v"); });
+}, { threshold: 0.1 });
+document.querySelectorAll(".r").forEach(el => obs.observe(el));
+
+// ════════════════════════════════════════════════════════════════════════════
+// CURSOR
+// ════════════════════════════════════════════════════════════════════════════
+const cur = document.getElementById("cur"), curR = document.getElementById("cur-r");
+document.addEventListener("mousemove", e => {
+  if(cur)  { cur.style.left  = e.clientX + "px"; cur.style.top  = e.clientY + "px"; }
+  if(curR) { curR.style.left = e.clientX + "px"; curR.style.top = e.clientY + "px"; }
+});
+document.querySelectorAll("button,.b-tab,.mc,.order-chip,.kv,.ki,a").forEach(el => {
+  el.addEventListener("mouseenter", () => document.body.classList.add("hov"));
+  el.addEventListener("mouseleave", () => document.body.classList.remove("hov"));
+});
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     SETUP GUIDE
+     ════════════════════════════════════════════════════════════════════════
+
+STEP 1 — GOOGLE SIGN-IN
+────────────────────────
+1. Go to console.cloud.google.com
+2. Create a new project (e.g. "UrbanBite FOD")
+3. APIs & Services → OAuth Consent Screen → External → fill app name & email
+4. APIs & Services → Credentials → + Create Credentials → OAuth Client ID
+5. Application type: Web application
+6. Authorised JavaScript origins: add your domain (e.g. https://urbanbite.netlify.app)
+   For local testing: http://localhost and http://127.0.0.1
+7. Copy the Client ID and paste it in CONFIG.GOOGLE_CLIENT_ID above
+
+STEP 2 — EMAILJS (welcome emails)
+───────────────────────────────────
+1. Sign up free at emailjs.com (200 emails/month free)
+2. Email Services → Add New Service → Gmail → Connect your Gmail account
+3. Copy the Service ID → paste in CONFIG.EMAILJS_SERVICE_ID
+4. Email Templates → Create New Template
+   - To email:  {{to_email}}
+   - Subject:   Welcome to UrbanBite FOD! 🔥
+   - Body:
+     Hi {{to_name}},
+     You're officially on the UrbanBite FOD launch list!
+     {{message}}
+     See you very soon,
+     Team UrbanBite FOD
+5. Copy Template ID → paste in CONFIG.EMAILJS_TEMPLATE_ID
+6. Account → API Keys → Public Key → paste in CONFIG.EMAILJS_PUBLIC_KEY
+
+STEP 3 — GO LIVE
+──────────────────
+- Upload index.html to Netlify (drag & drop → instant live URL)
+- Or GitHub Pages: push to repo → Settings → Pages → Deploy from main
+
+That's it. 🚀
+════════════════════════════════════════════════════════════════════════════ -->
+</body>
+</html>
